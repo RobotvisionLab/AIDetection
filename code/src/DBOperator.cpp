@@ -397,6 +397,17 @@ vector<Circulation> CDBOperator::getCirculationVecbyWTDH(string wtdh)
 	return ret;
 }
 
+vector<string> CDBOperator::getCirculation_idVecbyWTDH(string wtdh)
+{
+	vector<string> ret;
+	for (int i = 0; i < m_Circulation.size(); i++) {
+		if (m_Circulation[i].wtdh.compare(wtdh) == 0) {
+			ret.push_back(m_Circulation[i].lzdh);
+		}
+	}
+	return ret;
+}
+
 vector<Circulation> CDBOperator::getCirculationVecbyLZDH(string lzdh)
 {
 	vector<Circulation> ret;
@@ -1122,6 +1133,133 @@ BOOL CDBOperator::MOD_CIRU(Circulation & cir, vector<int>& index)
 				}
 			}
 			break;
+		}
+	}
+	return 0;
+}
+
+BOOL CDBOperator::MOD_ODB(OrderBase & odb, vector<int>& index)
+{
+	for (int s = 0; s < m_OrderBase.size(); s++) {
+		if (m_OrderBase[s].m_wtdbh == odb.m_wtdbh) {
+			if (m_OrderBase[s].m_state == DEFAULT)
+				m_OrderBase[s].m_state = MODIFIED;
+			for (int i = 0; i < index.size(); i++) {
+				if (index[i] == 1) {
+					m_OrderBase[s].m_title = odb.m_title;
+				}
+				else if (index[i] == 2) {
+					m_OrderBase[s].m_wtdw = odb.m_wtdw;
+				}
+				else if (index[i] == 3) {
+					m_OrderBase[s].m_sjdwqc = odb.m_sjdwqc;
+				}
+				else if (index[i] == 4) {
+					m_OrderBase[s].m_sjdwdz = odb.m_sjdwdz;
+				}
+				else if (index[i] == 5) {
+					m_OrderBase[s].m_sjdwlx = odb.m_sjdwlx;
+				}
+				else if (index[i] == 6) {
+					m_OrderBase[s].m_sjdwdm = odb.m_sjdwdm;
+				}
+				else if (index[i] == 8) {
+					m_OrderBase[s].m_lxr = odb.m_lxr;
+				}
+				else if (index[i] == 9) {
+					m_OrderBase[s].m_sj = odb.m_sj;
+				}
+				else if (index[i] == 10) {
+					m_OrderBase[s].m_dh = odb.m_dh;
+				}
+				else if (index[i] == 11) {
+					m_OrderBase[s].m_khyq = odb.m_khyq;
+				}
+				else if (index[i] == 12) {
+					m_OrderBase[s].m_slr = odb.m_slr;
+				}
+				else if (i == 13) {
+					m_OrderBase[s].m_slrq = odb.m_slrq;
+				}
+			}
+			break;
+		}
+	}
+	return 0;
+}
+
+vector<OrderBase> CDBOperator::searchResults(string key, int mode)
+{
+	//此处应使用 模糊匹配字符串 算法
+	vector<OrderBase> odb;
+	switch (mode)
+	{
+	//委托单号
+	case 0:
+	{
+		for each(auto c in m_OrderBase) {
+			if (c.m_wtdbh.find(key.c_str()) != -1) {
+				odb.push_back(c);
+			}
+		}
+		break;
+	}
+	//流转单号
+	case 1:
+	{	
+		//其他类似地方 也因该用 STL 的find
+		for each(auto c in m_Circulation) {
+			vector<string> wtdhs;
+			if (c.lzdh.find(key.c_str()) != -1) {
+				OrderBase o =  getOrderBasebyWTDH(c.wtdh);
+				if (find(wtdhs.begin(), wtdhs.end(), c.wtdh) == wtdhs.end()) {
+					wtdhs.push_back(c.wtdh);
+					odb.push_back(o);
+				}
+			}
+		}
+		break;
+	}
+	//委托公司
+	case 2:
+	{
+		for each(auto c in m_OrderBase) {
+			if (c.m_wtdw.find(key.c_str()) != -1) {
+				odb.push_back(c);
+			}
+		}
+		break;
+	}
+	//受检单位
+	case 3:
+	{
+		for each(auto c in m_OrderBase) {
+			if (c.m_sjdwqc.find(key.c_str()) != -1) {
+				odb.push_back(c);
+			}
+		}
+		break;
+	}
+	default:
+		break;
+	}
+
+	return odb;
+}
+
+BOOL CDBOperator::DEL_ODB(string wtdh)
+{
+	//操作时，之前的修改已经保存，因此没有必要考虑，先增加后删除的情况
+	//流转单
+	vector<string> retvec = getCirculation_idVecbyWTDH(wtdh);
+	for (int i = 0; i < retvec.size(); i++) {
+		DEL_CIRU(retvec[i]);
+	}
+
+	//orderbase
+	for (int i = 0; i < m_OrderBase.size(); i++) {
+		if (m_OrderBase[i].m_wtdbh.compare(wtdh) == 0) {
+			m_OrderBase[i].m_state = DELETED;
 		}
 	}
 	return 0;

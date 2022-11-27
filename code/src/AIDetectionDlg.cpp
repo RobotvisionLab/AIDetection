@@ -317,32 +317,32 @@ void CAIDetectionDlg::changeVisible(int newIndex)
 	}
 	//当前在核验界面
 	else if (m_curtdlgIndex == 3) {
-			//点击注销按钮
-			if (newIndex == 0) {
-				m_ToolBar.ShowWindow(SW_HIDE);
-				m_loginDlg.ShowWindow(SW_SHOW);
-				m_detectionDlg.ShowWindow(SW_HIDE);
-			}
-			//点击录入按钮
-			else if (newIndex == 1) {
-				m_inputDlg.ShowWindow(SW_SHOW);
-				m_detectionDlg.ShowWindow(SW_HIDE);
-			}
-			//点击检测钮
-			else if (newIndex == 2) {
-				m_detectionDlg.switchMode(true);
-			}
-			//点击设置按钮
-			else if (newIndex == 4) {
-				m_detectionDlg.ShowWindow(SW_HIDE);
-				m_configDlg.ShowWindow(SW_SHOW);
-			}
-			//点击关于按钮
-			else if (newIndex == 5) {
-				m_detectionDlg.ShowWindow(SW_HIDE);
-				m_myaboutDlg.ShowWindow(SW_SHOW);
-			}
+		//点击注销按钮
+		if (newIndex == 0) {
+			m_ToolBar.ShowWindow(SW_HIDE);
+			m_loginDlg.ShowWindow(SW_SHOW);
+			m_detectionDlg.ShowWindow(SW_HIDE);
 		}
+		//点击录入按钮
+		else if (newIndex == 1) {
+			m_inputDlg.ShowWindow(SW_SHOW);
+			m_detectionDlg.ShowWindow(SW_HIDE);
+		}
+		//点击检测钮
+		else if (newIndex == 2) {
+			m_detectionDlg.switchMode(true);
+		}
+		//点击设置按钮
+		else if (newIndex == 4) {
+			m_detectionDlg.ShowWindow(SW_HIDE);
+			m_configDlg.ShowWindow(SW_SHOW);
+		}
+		//点击关于按钮
+		else if (newIndex == 5) {
+			m_detectionDlg.ShowWindow(SW_HIDE);
+			m_myaboutDlg.ShowWindow(SW_SHOW);
+		}
+	}
 	//当前在设置界面
 	else if (m_curtdlgIndex == 4) {
 		if (!m_configDlg.IsSave())

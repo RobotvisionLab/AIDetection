@@ -70,5 +70,19 @@ public:
 
 	afx_msg void OnNMClickTreeDetYp(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTvnSelchangedTreeDetYp(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnNoDetected();
+	afx_msg void OnNoInSpected();
+	afx_msg void OnNoVerified();
+	afx_msg void OnCAM();
+	afx_msg void OnDetBasis();
+	afx_msg void OnMeasureSTD();
+	afx_msg void OnMeasureIST();
+	afx_msg void OnMeasureBasis();
+	afx_msg void OnLast();
+	afx_msg void OnNext();
+	afx_msg void OnDetRst();
+	afx_msg void OnInspectRst();
+	afx_msg void OnSave();
 	afx_msg void OnSubmit();
 };

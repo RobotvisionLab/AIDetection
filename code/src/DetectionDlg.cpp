@@ -48,7 +48,24 @@ BEGIN_MESSAGE_MAP(CDetectionDlg, CDialogEx)
 	ON_WM_SIZE()
 	ON_NOTIFY(NM_CLICK, IDC_TREE_DET_YP, &CDetectionDlg::OnNMClickTreeDetYp)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE_DET_YP, &CDetectionDlg::OnTvnSelchangedTreeDetYp)
-	ON_COMMAND(ID_BUTTON_SUBMIT,  &OnSubmit)
+
+	ON_COMMAND(ID_BUTTON_YJC, &OnNoDetected)
+	ON_COMMAND(ID_BUTTON_YJD, &OnNoInSpected)
+	ON_COMMAND(ID_BUTTON_WHY, &OnNoVerified)
+
+	ON_COMMAND(ID_BUTTON_SSHM, &OnCAM)
+	ON_COMMAND(ID_BUTTON_JDYJ, &OnDetBasis)
+	ON_COMMAND(ID_BUTTON_JLBZ, &OnMeasureSTD)
+	ON_COMMAND(ID_BUTTON_JLQJ, &OnMeasureIST)
+	ON_COMMAND(ID_BUTTON_JLYJ, &OnMeasureBasis)
+
+	ON_COMMAND(ID_BUTTON_JD_LAST, &OnLast)
+	ON_COMMAND(ID_BUTTON_JD_NEXT, &OnNext)
+	ON_COMMAND(ID_BUTTON_D_JCJG, &OnDetRst)
+	ON_COMMAND(ID_BUTTON_D_JDJG, &OnInspectRst)
+	ON_COMMAND(ID_BUTTON_D_SAVE, &OnSave)
+	ON_COMMAND(ID_BUTTON_SUBMIT, &OnSubmit)
+
 END_MESSAGE_MAP()
 
 
@@ -102,14 +119,13 @@ BOOL CDetectionDlg::OnInitDialog()
 
 	initYP_P();
 
-	m_list_jcjg.InsertColumn(0, _T("0"), LVCFMT_CENTER, 55);
-	m_list_jcjg.InsertColumn(1, _T("1"), LVCFMT_CENTER, 51);
-	m_list_jcjg.InsertColumn(2, _T("2"), LVCFMT_CENTER, 53);
-	m_list_jcjg.InsertColumn(3, _T("3"), LVCFMT_CENTER, 49);
-	m_list_jcjg.InsertColumn(4, _T("4"), LVCFMT_CENTER, 51);
-	m_list_jcjg.InsertColumn(5, _T("5"), LVCFMT_CENTER, 50);
-	m_list_jcjg.InsertColumn(6, _T("6"), LVCFMT_CENTER, 53);
-
+	m_list_jcjg.InsertColumn(0, _T("0"), LVCFMT_CENTER, 60);
+	m_list_jcjg.InsertColumn(1, _T("1"), LVCFMT_CENTER, 60);
+	m_list_jcjg.InsertColumn(2, _T("2"), LVCFMT_CENTER, 60);
+	m_list_jcjg.InsertColumn(3, _T("3"), LVCFMT_CENTER, 60);
+	m_list_jcjg.InsertColumn(4, _T("4"), LVCFMT_CENTER, 60);
+	m_list_jcjg.InsertColumn(5, _T("5"), LVCFMT_CENTER, 59);
+	m_list_jcjg.InsertColumn(6, _T("6"), LVCFMT_CENTER, 59);
 
 	HDITEM item;
 	item.cxy = 110;
@@ -163,10 +179,10 @@ BOOL CDetectionDlg::OnInitDialog()
 	dwStyle |= LVS_EX_GRIDLINES;
 	m_list_jdjg.SetExtendedStyle(dwStyle);
 
-	m_list_jdjg.InsertColumn(0, _T("序 号"), LVCFMT_CENTER, 40);
-	m_list_jdjg.InsertColumn(1, _T("检定项目"), LVCFMT_CENTER, 105);
+	m_list_jdjg.InsertColumn(0, _T("序 号"), LVCFMT_CENTER, 50);
+	m_list_jdjg.InsertColumn(1, _T("检定项目"), LVCFMT_CENTER, 120);
 	m_list_jdjg.InsertColumn(2, _T("测量结果"), LVCFMT_CENTER, 80);
-	m_list_jdjg.InsertColumn(3, _T("技术要求"), LVCFMT_CENTER, 130);
+	m_list_jdjg.InsertColumn(3, _T("技术要求"), LVCFMT_CENTER, 165);
 
 	m_list_jdjg.InsertItem(0, _T("1"));
 	m_list_jdjg.SetItemText(0, 1, _T("外观"));
@@ -227,7 +243,6 @@ BOOL CDetectionDlg::OnInitDialog()
 	m_mfcprogridpro_jcjg.push_back(pGroup11);
 	m_mfcprogridpro_jcjg.push_back(pGroup22);
 
-
 	//动态布局  
 	EnableDynamicLayout();
 	auto pdlmanager = GetDynamicLayout();
@@ -264,8 +279,6 @@ BOOL CDetectionDlg::OnInitDialog()
 			pdlmanager->AddItem(GetDlgItem(IDC_STATIC_L21)->GetSafeHwnd(), CMFCDynamicLayout::MoveHorizontalAndVertical(40, 0), CMFCDynamicLayout::SizeHorizontalAndVertical(0, 0));
 			pdlmanager->AddItem(GetDlgItem(IDC_STATIC_L22)->GetSafeHwnd(), CMFCDynamicLayout::MoveHorizontalAndVertical(40, 0), CMFCDynamicLayout::SizeHorizontalAndVertical(0, 0));
 
-
-
 			pdlmanager->AddItem(m_static_jcjg.GetSafeHwnd(), CMFCDynamicLayout::MoveHorizontalAndVertical(40, 0), CMFCDynamicLayout::SizeHorizontalAndVertical(0, 0));
 			pdlmanager->AddItem(m_proper_jdjg.GetSafeHwnd(), CMFCDynamicLayout::MoveHorizontalAndVertical(40, 0), CMFCDynamicLayout::SizeHorizontalAndVertical(60, 0));
 			pdlmanager->AddItem(m_static_jdjg.GetSafeHwnd(), CMFCDynamicLayout::MoveHorizontalAndVertical(40, 100), CMFCDynamicLayout::SizeHorizontalAndVertical(0, 0));
@@ -277,6 +290,10 @@ BOOL CDetectionDlg::OnInitDialog()
 			pdlmanager->AddItem(m_static_hysp.GetSafeHwnd(), CMFCDynamicLayout::MoveHorizontalAndVertical(40, 0), CMFCDynamicLayout::SizeHorizontalAndVertical(0, 0));
 		}
 	}
+
+	/*if (m_role == ROLE(2)) {
+		m_Detection_ToolBar.GetToolBarCtrl().EnableButton(ID_BUTTON_YJD, false);
+	}*/
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 异常: OCX 属性页应返回 FALSE
@@ -521,7 +538,7 @@ void CDetectionDlg::switchMode(bool isDetection)
 	}
 	else {
 		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_YJD, true);
-		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, true);
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, false);
 		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_SUBMIT, false);
 		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_D_SAVE, true);
 		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_SUBMIT, false);
@@ -657,6 +674,59 @@ void CDetectionDlg::OnTvnSelchangedTreeDetYp(NMHDR *pNMHDR, LRESULT *pResult)
 	m_mfcprogridpro_jcjg[9]->SetValue(_variant_t(srst.hyjg.c_str()));
 	/////////审批结果
 	m_mfcprogridpro_jcjg[10]->SetValue(_variant_t(srst.spjg.c_str()));
+}
+
+void CDetectionDlg::OnNoDetected()
+{
+
+}
+
+void CDetectionDlg::OnNoInSpected()
+{
+}
+
+void CDetectionDlg::OnNoVerified()
+{
+}
+
+void CDetectionDlg::OnCAM()
+{
+}
+
+void CDetectionDlg::OnDetBasis()
+{
+}
+
+void CDetectionDlg::OnMeasureSTD()
+{
+}
+
+void CDetectionDlg::OnMeasureIST()
+{
+}
+
+void CDetectionDlg::OnMeasureBasis()
+{
+}
+
+void CDetectionDlg::OnLast()
+{
+}
+
+void CDetectionDlg::OnNext()
+{
+}
+
+void CDetectionDlg::OnDetRst()
+{
+}
+
+void CDetectionDlg::OnInspectRst()
+{
+}
+
+void CDetectionDlg::OnSave()
+{
 }
 
 void CDetectionDlg::OnSubmit()

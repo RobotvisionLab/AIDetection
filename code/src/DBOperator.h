@@ -2,6 +2,7 @@
 #include "MyDatabase.h"
 #include "info.h"
 //#include "boost/any.hpp"
+#include <algorithm>
 #include <map>
 class CDBOperator
 {
@@ -73,6 +74,8 @@ public:
 	vector<OrderBase> getOrderBaseVecbyWTDH(string wtdh);
 	//根据委托单号获取流转单合集
 	vector<Circulation> getCirculationVecbyWTDH(string wtdh);
+	//根据委托单号获取流转单ID合集
+	vector<string> getCirculation_idVecbyWTDH(string wtdh);
 	//根据流转单号获取流转单合集
 	vector<Circulation> getCirculationVecbyLZDH(string lzdh);
 	//根据流转单号获取样品合集
@@ -155,9 +158,12 @@ public:
 
 	BOOL DEL_SAMPLE(int id);
 	BOOL MOD_SAMPLE(Sampleinfo& info, Samplerst & rst, vector<int>& index);
-
 	BOOL DEL_CIRU(string lzdh);
 	BOOL MOD_CIRU(Circulation& cir, vector<int>& index);
+	BOOL DEL_ODB(string wtdh);
+	BOOL MOD_ODB(OrderBase& odb, vector<int>& index);
 
+	//mode: 0-委托单 1-流转单号 2-委托公司 3-受检单位
+	vector<OrderBase> searchResults(string key, int mode = 0);
 };
 

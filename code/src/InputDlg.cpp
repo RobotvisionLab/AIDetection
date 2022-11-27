@@ -21,7 +21,8 @@ CInputDlg::CInputDlg(CWnd* pParent /*=NULL*/)
 
 CInputDlg::~CInputDlg()
 {
-	m_Input_ImageList.DeleteImageList();
+	if(m_Input_ImageList)
+		m_Input_ImageList.DeleteImageList();
 }
 
 void CInputDlg::DoDataExchange(CDataExchange* pDX)
@@ -71,6 +72,7 @@ BEGIN_MESSAGE_MAP(CInputDlg, CDialogEx)
 	ON_COMMAND(ID_BUTTON_VIEW_WTD, &OnViewWTD)
 	ON_COMMAND(ID_BUTTON_VIEW_JDZS, &OnViewJDZS)
 
+	ON_BN_CLICKED(IDC_SPLIT_SEARCH, &CInputDlg::OnBnClickedSplitSearch)
 END_MESSAGE_MAP()
 
 
@@ -147,7 +149,7 @@ BOOL CInputDlg::OnInitDialog()
 		m_Input_ToolBar.GetToolBarCtrl().EnableButton(ID_BUTTON_WTD_NEW + i, false);
 	}
 
-	initWTLZ();
+	initWTLZ(g_dlg->m_dboperator.m_OrderBase);
 
 	initYP_P();
 	initLZD_P();
@@ -183,14 +185,14 @@ BOOL CInputDlg::OnInitDialog()
 }
 
 
-void CInputDlg::initWTLZ()
+void CInputDlg::initWTLZ(vector<OrderBase> odb)
 {
 	m_tree_wtd.DeleteAllItems();
-	for (int i = 0; i < g_dlg->m_dboperator.m_OrderBase.size(); i++) {
+	for (int i = 0; i < odb.size(); i++) {
 		CString wtdh_s, wtdw_s, sjdw_s;
-		string wtdh = g_dlg->m_dboperator.m_OrderBase[i].m_wtdbh;
-		string wtdw = g_dlg->m_dboperator.m_OrderBase[i].m_wtdw;
-		string sjdw = g_dlg->m_dboperator.m_OrderBase[i].m_sjdwqc;
+		string wtdh = odb[i].m_wtdbh;
+		string wtdw = odb[i].m_wtdw;
+		string sjdw = odb[i].m_sjdwqc;
 		wtdh_s.Format(_T("委托单号：%s"), CStringW(wtdh.c_str()));
 		wtdw_s.Format(_T("委托单位：%s"), CStringW(wtdw.c_str()));
 		sjdw_s.Format(_T("受检单位：%s"), CStringW(sjdw.c_str()));
@@ -256,7 +258,6 @@ void CInputDlg::OnSelchangedTreeWtd(NMHDR *pNMHDR, LRESULT *pResult)
 		}*/
 		saveModifyornot();
 	}
-	item = m_tree_wtd.GetSelectedItem();
 	if (item == nullptr)
 		return;
 	TreeNodeData* td = (TreeNodeData*)m_tree_wtd.GetItemData(item);
@@ -453,6 +454,7 @@ void CInputDlg::canNotMod_P(int index)
 	}
 	else if (index == 2) {
 		m_mfcprogridpro_wtd[0]->Enable(false);
+		m_mfcprogridpro_wtd[7]->Enable(false);
 	}
 }
 
@@ -791,7 +793,7 @@ void CInputDlg::resetValue()
 		}
 	}
 	else if (m_current_button_state == DEL_LZD) {
-		initWTLZ();
+		initWTLZ(g_dlg->m_dboperator.m_OrderBase);
 		m_current_button_state = VIEW;
 	}
 	else if(m_current_button_state == MODIFY_LZD){
@@ -830,6 +832,24 @@ void CInputDlg::newLZD()
 	cir.lqrq = stringtodate(string(str));
 	cir._state = ADDED;
 	g_dlg->m_dboperator.m_Circulation.push_back(cir);
+}
+
+void CInputDlg::OnMenuSearch(int mode)
+{
+	// TODO: 在此添加命令处理程序代码
+	CString key = _T("");
+	m_edit_search.GetWindowText(key);
+	vector<OrderBase> odb;
+	if (key.IsEmpty()) {
+		odb = g_dlg->m_dboperator.m_OrderBase;
+	}
+	else {
+		// CString to string  
+		odb = g_dlg->m_dboperator.searchResults((LPCSTR)CStringA(key), mode);
+	}
+	
+	m_tree_wtd.DeleteAllItems();
+	initWTLZ(odb);
 }
 
 void CInputDlg::OnNMClickListYp(NMHDR *pNMHDR, LRESULT *pResult)
@@ -976,6 +996,10 @@ void CInputDlg::OnModWTD()
 		return;
 	}
 	m_current_button_state = MODIFY_WTD;
+	m_proper_wtd.EnableWindow(true);
+	m_Input_ToolBar.GetToolBarCtrl().EnableButton(ID_BUTTON_SAVE, true);
+	Invalidate(false);
+	canNotMod_P(2);
 }
 
 void CInputDlg::OnDelWTD()
@@ -984,12 +1008,48 @@ void CInputDlg::OnDelWTD()
 		AfxMessageBox(CStringW("Please save your changes first!"));
 		return;
 	}
-	m_current_button_state = MODIFY_WTD;
+	m_current_button_state = DEL_WTD;
+	HTREEITEM item = m_tree_wtd.GetSelectedItem();
+	HTREEITEM parentItem = m_tree_wtd.GetParentItem(item);
+	HTREEITEM parentItemp = m_tree_wtd.GetParentItem(parentItem);
+	m_tree_wtd.DeleteItem(parentItemp);
+
+	m_listctrl_yp.DeleteAllItems();
+	m_mfcprogridpro_yp[11]->Expand(FALSE);
+	m_mfcprogridpro_lzd[17]->Expand(FALSE);
+	m_mfcprogridpro_wtd[14]->Expand(FALSE);
+
+	g_dlg->m_dboperator.DEL_ODB(m_currentInfo.wtdbh);
+
 }
 
 void CInputDlg::OnNewLZD()
 {
-	m_current_button_state = MODIFY_LZD;
+	m_current_button_state = NEW_LZD;
+	HTREEITEM parent_item = m_tree_wtd.GetParentItem(m_current_tree_item);
+	string lzdh = g_dlg->m_dboperator.getNewLZDH();
+	CString lzdh_s;
+	lzdh_s.Format(_T("流转单号：%s"), CStringW(lzdh.c_str()));
+
+	HTREEITEM hSubSubItem = m_tree_wtd.InsertItem(lzdh_s, parent_item);
+
+	//m_tree_wtd.SetItemState(m_current_tree_item, 0, TVIS_SELECTED | LVIS_FOCUSED);
+	m_tree_wtd.SelectItem(nullptr);
+	m_tree_wtd.SetItemState(hSubSubItem, TVIS_SELECTED | LVIS_FOCUSED, TVIS_SELECTED | LVIS_FOCUSED);
+	
+	m_current_tree_item = hSubSubItem;
+	m_currentInfo.lzdh = lzdh;
+	TreeNodeData* pNd = new TreeNodeData;
+	pNd->wtdbh = m_currentInfo.wtdbh;
+	pNd->lzdh = m_currentInfo.lzdh;
+	pNd->ypbh_id = -1;
+	m_tree_wtd.SetItemData(hSubSubItem, (DWORD_PTR)pNd);
+	m_mfcprogridpro_lzd[0]->SetValue(_variant_t(lzdh.c_str()));
+
+	m_listctrl_yp.DeleteAllItems();
+	m_proper_yp.ExpandAll(FALSE);
+	m_proper_lzd.EnableWindow();
+	Invalidate(FALSE);
 }
 
 void CInputDlg::OnModLZD()
@@ -1006,13 +1066,36 @@ void CInputDlg::OnDelLZD()
 	m_current_button_state = DEL_LZD;
 	HTREEITEM item = m_tree_wtd.GetSelectedItem();
 	HTREEITEM parentItem = m_tree_wtd.GetParentItem(item);
-	parentItem = m_tree_wtd.GetParentItem(parentItem);
-	m_tree_wtd.DeleteItem(parentItem);
+	CString ts = m_tree_wtd.GetItemText(parentItem);
+	HTREEITEM hNextItem;
+	HTREEITEM hChildItem = m_tree_wtd.GetChildItem(parentItem);
+	int child_num = 0;
+	if (hChildItem != item)
+		child_num++;
+
+	while (hChildItem != NULL)
+	{
+		hNextItem = m_tree_wtd.GetNextItem(hChildItem, TVGN_NEXT);
+		ts = m_tree_wtd.GetItemText(hNextItem);
+		if (hNextItem != item && hNextItem != NULL)
+			child_num++;
+		hChildItem = hNextItem;
+	}
+
+	if (child_num == 0)
+	{
+		HTREEITEM parentItemp = m_tree_wtd.GetParentItem(parentItem);
+		m_tree_wtd.DeleteItem(parentItemp);
+		m_mfcprogridpro_wtd[14]->Expand(FALSE);
+	}
+	else
+	{
+		m_tree_wtd.DeleteItem(item);
+	}
 
 	m_listctrl_yp.DeleteAllItems();
 	m_mfcprogridpro_yp[11]->Expand(FALSE);
 	m_mfcprogridpro_lzd[17]->Expand(FALSE);
-	m_mfcprogridpro_wtd[14]->Expand(FALSE);
 	g_dlg->m_dboperator.DEL_CIRU(m_currentInfo.lzdh);
 
 	//删一个存一个，因此不存在，删了多个再保存的情况
@@ -1267,9 +1350,6 @@ void CInputDlg::OnSaveSampleInfo()
 
 			m_proper_yp.EnableWindow(false);
 		}
-		else if (m_current_button_state == NEW_LZD) {
-			newLZD();
-		}
 		else if (m_current_button_state == MODIFY_LZD) {
 			BOOL a = false;
 			CStringA str;
@@ -1329,6 +1409,72 @@ void CInputDlg::OnSaveSampleInfo()
 			}
 			g_dlg->m_dboperator.MOD_CIRU(cir, index);
 			m_proper_lzd.EnableWindow(false);
+		}
+		else if (m_current_button_state == NEW_LZD) {
+			newLZD();
+		}
+		else if (m_current_button_state == MODIFY_WTD) {
+			BOOL a = false;
+			CStringA str;
+			vector<int> index;
+			OrderBase odb;
+			odb.m_wtdbh = m_currentInfo.wtdbh;
+			for (int i = 1; i < m_mfcprogridpro_wtd.size(); i++) {
+				CString name = m_mfcprogridpro_wtd[i]->GetName();
+				a = m_mfcprogridpro_wtd[i]->IsModified();
+				str = m_mfcprogridpro_wtd[i]->GetValue();
+				if (a == FALSE) continue;
+				if (i == 1) {
+					odb.m_title = string(str);
+					index.push_back(1);
+				}
+				else if (i == 2) {
+					odb.m_wtdw = string(str);
+					index.push_back(2);
+				}
+				else if (i == 3) {
+					odb.m_sjdwqc = string(str);
+					index.push_back(3);
+				}
+				else if (i == 4) {
+					odb.m_sjdwdz = string(str);
+					index.push_back(4);
+				}
+				else if (i == 5) {
+					odb.m_sjdwlx = string(str);
+					index.push_back(5);
+				}
+				else if (i == 6) {
+					odb.m_sjdwdm = string(str);
+					index.push_back(6);
+				}
+				else if (i == 8) {
+					odb.m_lxr = string(str);
+					index.push_back(8);
+				}
+				else if (i == 9) {
+					odb.m_sj = string(str);
+					index.push_back(9);
+				}
+				else if (i == 10) {
+					odb.m_dh = string(str);
+					index.push_back(10);
+				}
+				else if (i == 11) {
+					odb.m_khyq = string(str);
+					index.push_back(11);
+				}
+				else if (i == 12) {
+					odb.m_slr = string(str);
+					index.push_back(12);
+				}
+				else if (i == 13) {
+					odb.m_slrq = stringtodate(string(str));
+					index.push_back(13);
+				}
+			}
+			g_dlg->m_dboperator.MOD_ODB(odb, index);
+			m_proper_wtd.EnableWindow(false);
 		}
 		else if (m_current_button_state == NEW_WTD) {
 			OrderBase odb;
@@ -1446,29 +1592,31 @@ void CInputDlg::OnViewJDZS()
 	viewPDF(filename);
 }
 
-
 void CInputDlg::OnMenuSearchWtd()
 {
 	// TODO: 在此添加命令处理程序代码
-
+	OnMenuSearch(0);
 }
 
 
 void CInputDlg::OnMenuSearchLzd()
 {
 	// TODO: 在此添加命令处理程序代码
+	OnMenuSearch(1);
 }
 
 
 void CInputDlg::OnMenuSearchWtgs()
 {
 	// TODO: 在此添加命令处理程序代码
+	OnMenuSearch(2);
 }
 
 
 void CInputDlg::OnMenuSearchSjdw()
 {
 	// TODO: 在此添加命令处理程序代码
+	OnMenuSearch(3);
 }
 
 
@@ -1488,3 +1636,10 @@ void CInputDlg::OnClickTreeWtd(NMHDR *pNMHDR, LRESULT *pResult)
 
 
 
+
+
+void CInputDlg::OnBnClickedSplitSearch()
+{
+	// TODO: Add your control notification handler code here
+	OnMenuSearchWtd();
+}

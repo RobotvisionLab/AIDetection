@@ -18,6 +18,7 @@
  enum BUTTONSTATE {
 	 NEW_WTD = 0,
 	 MODIFY_WTD,
+	 DEL_WTD,
 	 NEW_LZD,
 	 MODIFY_LZD,
 	 DEL_LZD,
@@ -56,7 +57,7 @@ private:
 	BUTTONSTATE m_current_button_state;
 	HTREEITEM m_current_tree_item;
 
-	void initWTLZ();
+	void initWTLZ(vector<OrderBase> odb);
 	void initYP(bool isupdate=false);
 
 	void initYP_P();
@@ -76,6 +77,8 @@ private:
 	void resetValue();
 
 	void newLZD();
+
+	void OnMenuSearch(int mode = 0);
 
 public:
 	virtual BOOL OnInitDialog();
@@ -123,4 +126,5 @@ public:
 	afx_msg void OnViewWTD();
 	afx_msg void OnViewJDZS();
 
+	afx_msg void OnBnClickedSplitSearch();
 };
