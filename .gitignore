@@ -5,4 +5,9 @@ code/bin/Debug/AIDetection.iobj
 code/bin/Release/AIDetection.ipdb
 code/bin/Release/AIDetection.iobj
 
-#code/build/
+code/src/AIDetection.VC.db
+*.db
+*.VC
+*.aps
+/code/src/ipch/
+
