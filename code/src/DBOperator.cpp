@@ -332,6 +332,7 @@ bool CDBOperator::getAllInfo()
 						o.zqddj = values[r][3];
 						o.zsbh = values[r][4];
 						o.yxqx = stringtodate(values[r][5]);
+						o.ref = values[r][6];
 						m_Measurestd.push_back(o);
 					}
 				}
@@ -346,6 +347,7 @@ bool CDBOperator::getAllInfo()
 						o.zqddj = values[r][5];
 						o.zsbh = values[r][6];
 						o.yxqx = stringtodate(values[r][7]);
+						o.ref = values[r][8];
 						m_Measureist.push_back(o);
 					}
 				}
@@ -354,6 +356,7 @@ bool CDBOperator::getAllInfo()
 						VerifyBasis o;
 						o.id = stringtoint(values[r][0]);
 						o.jdyj = values[r][1];
+						o.ref = values[r][2];
 						m_VerifyBasis.push_back(o);
 					}
 				}

@@ -69,6 +69,9 @@
     <ClInclude Include="PGCalculation.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ShowInfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AIDetection.cpp">
@@ -114,6 +117,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="PGCalculation.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ShowInfo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -294,6 +300,9 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="res\save2.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\wsp.ico">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

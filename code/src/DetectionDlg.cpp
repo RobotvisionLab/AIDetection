@@ -10,6 +10,7 @@
 
 
 extern CAIDetectionDlg *g_dlg;
+CDetectionDlg *pCDetectionDlg;
 // CDetectionDlg 对话框
 
 IMPLEMENT_DYNAMIC(CDetectionDlg, CDialogEx)
@@ -49,9 +50,10 @@ BEGIN_MESSAGE_MAP(CDetectionDlg, CDialogEx)
 	ON_NOTIFY(NM_CLICK, IDC_TREE_DET_YP, &CDetectionDlg::OnNMClickTreeDetYp)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE_DET_YP, &CDetectionDlg::OnTvnSelchangedTreeDetYp)
 
-	ON_COMMAND(ID_BUTTON_YJC, &OnNoDetected)
-	ON_COMMAND(ID_BUTTON_YJD, &OnNoInSpected)
+	ON_COMMAND(ID_BUTTON_WJC, &OnNoDetected)
+	ON_COMMAND(ID_BUTTON_WJD, &OnNoInSpected)
 	ON_COMMAND(ID_BUTTON_WHY, &OnNoVerified)
+	ON_COMMAND(ID_BUTTON_WSP, &OnNoApproved)
 
 	ON_COMMAND(ID_BUTTON_SSHM, &OnCAM)
 	ON_COMMAND(ID_BUTTON_JDYJ, &OnDetBasis)
@@ -76,10 +78,10 @@ BOOL CDetectionDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	// 在此添加额外的初始化
+	//在此添加额外的初始化
 	//初始化工具栏
 	m_Detection_ImageList.Create(18, 18, ILC_COLOR24 | ILC_MASK, 0, 1);
-	for (int i = 0; i < 14; i++)
+	for (int i = 0; i < 15; i++)
 	{
 		m_Detection_ImageList.Add(AfxGetApp()->LoadIconW(IDI_ICON_YJC + i));
 	}
@@ -97,20 +99,25 @@ BOOL CDetectionDlg::OnInitDialog()
 	m_Detection_ToolBar.SetButtonText(0, _T("未检测"));
 	m_Detection_ToolBar.SetButtonText(1, _T("未检定"));
 	m_Detection_ToolBar.SetButtonText(2, _T("未核验"));
-	m_Detection_ToolBar.SetButtonText(4, _T("实时画面"));
-	m_Detection_ToolBar.SetButtonText(5, _T("检定依据"));
-	m_Detection_ToolBar.SetButtonText(6, _T("计量标准"));
-	m_Detection_ToolBar.SetButtonText(7, _T("计量器具"));
-	m_Detection_ToolBar.SetButtonText(8, _T("计量依据"));
-	m_Detection_ToolBar.SetButtonText(10, _T("上一个"));
-	m_Detection_ToolBar.SetButtonText(11, _T("下一个"));
-	m_Detection_ToolBar.SetButtonText(13, _T("检测结果"));
-	m_Detection_ToolBar.SetButtonText(14, _T("检定结果"));
-	m_Detection_ToolBar.SetButtonText(16, _T("保存"));
-	m_Detection_ToolBar.SetButtonText(17, _T("提交"));
+	m_Detection_ToolBar.SetButtonText(3, _T("未审批"));
+	m_Detection_ToolBar.SetButtonText(5, _T("实时画面"));
+	m_Detection_ToolBar.SetButtonText(6, _T("检定依据"));
+	m_Detection_ToolBar.SetButtonText(7, _T("计量标准"));
+	m_Detection_ToolBar.SetButtonText(8, _T("计量器具"));
+	m_Detection_ToolBar.SetButtonText(9, _T("计量依据"));
+	m_Detection_ToolBar.SetButtonText(11, _T("上一个"));
+	m_Detection_ToolBar.SetButtonText(12, _T("下一个"));
+	m_Detection_ToolBar.SetButtonText(14, _T("检测结果"));
+	m_Detection_ToolBar.SetButtonText(15, _T("检定结果"));
+	m_Detection_ToolBar.SetButtonText(17, _T("保存"));
+	m_Detection_ToolBar.SetButtonText(18, _T("提交"));
 
 	RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, 0); 
-	m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_YJC, true);
+	//m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WJC, false);
+
+	//m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_JD_LAST, true);
+	//m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_JD_NEXT, true);
+	m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_JLYJ, true);
 
 	DWORD dwStyle = m_list_jcjg.GetExtendedStyle();
 	dwStyle |= LVS_EX_FULLROWSELECT;
@@ -291,10 +298,7 @@ BOOL CDetectionDlg::OnInitDialog()
 		}
 	}
 
-	/*if (m_role == ROLE(2)) {
-		m_Detection_ToolBar.GetToolBarCtrl().EnableButton(ID_BUTTON_YJD, false);
-	}*/
-
+	pCDetectionDlg = this;
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 异常: OCX 属性页应返回 FALSE
 }
@@ -394,6 +398,14 @@ void CDetectionDlg::initYP_P()
 void CDetectionDlg::setRole(ROLE role)
 {
 	m_role = role;
+	if (m_role == ROLE(4)) {
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, true);
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WSP, false);
+	}
+	else if (m_role == ROLE(3)) {
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, false);
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WSP, true);
+	}
 	initYP();
 }
 
@@ -470,6 +482,13 @@ void CDetectionDlg::initYP()
 	HTREEITEM hSubItem4 = m_list_d_yp.InsertItem(CStringW("已核验"));
 	HTREEITEM hSubItem5 = m_list_d_yp.InsertItem(CStringW("已审批"));
 
+	m_list_hitems.clear();
+	m_list_hitems.push_back(hSubItem1);
+	m_list_hitems.push_back(hSubItem2);
+	m_list_hitems.push_back(hSubItem3);
+	m_list_hitems.push_back(hSubItem4);
+	m_list_hitems.push_back(hSubItem5);
+
 	insertTreeItem(hSubItem1, info_state_1);
 	insertTreeItem(hSubItem2, info_state_2);
 	insertTreeItem(hSubItem3, info_state_3);
@@ -503,7 +522,7 @@ void CDetectionDlg::initYP()
 
 }
 
-void CDetectionDlg::expandTree(HTREEITEM hTreeItem)
+void CDetectionDlg::expandTree(HTREEITEM hTreeItem, int expand)
 {
 	if (!m_list_d_yp.ItemHasChildren(hTreeItem))
 	{
@@ -516,19 +535,34 @@ void CDetectionDlg::expandTree(HTREEITEM hTreeItem)
 		if (hChildItem)
 		{
 			expandTree(hChildItem);
-			m_list_d_yp.Expand(hTreeItem, TVE_EXPAND);
+			m_list_d_yp.Expand(hTreeItem, expand);
 		}
 		hTreeItem = m_list_d_yp.GetNextSiblingItem(hTreeItem);
 	}
 }
 
-
+void CDetectionDlg::expandAllTreeItems()
+{
+	for each (auto item in m_list_hitems)
+	{
+		if (item != NULL)
+		{
+			expandTree(item);
+		}
+	}
+	m_Detection_ToolBar.SetButtonText(0, _T("未检测"));
+	m_Detection_ToolBar.SetButtonText(1, _T("未检定"));
+	m_Detection_ToolBar.SetButtonText(2, _T("未核验"));
+	m_Detection_ToolBar.SetButtonText(3, _T("未审批"));
+}
 
 void CDetectionDlg::switchMode(bool isDetection)
 {
 	if (isDetection) {
-		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_YJD, false);
-		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, false);
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WJC, false);
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WJD, false);
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, true);
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WSP, true);
 		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_D_SAVE, false);
 		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_SUBMIT, true);
 		m_static_sshm.ShowWindow(SW_SHOW);
@@ -537,8 +571,23 @@ void CDetectionDlg::switchMode(bool isDetection)
 		m_proper_hysp.ShowWindow(SW_HIDE);
 	}
 	else {
-		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_YJD, true);
-		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, false);
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WJC, true);
+		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WJD, true);
+		if (m_role == ROLE(3)) {
+			m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, false);
+			m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WSP, true);
+		}
+
+		if (m_role == ROLE(4)) {
+			m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, true);
+			m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WSP, false);
+		}
+
+		if (m_role == ROLE(5)) {
+			m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WHY, false);
+			m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_WSP, false);
+		}
+
 		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_SUBMIT, false);
 		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_D_SAVE, true);
 		m_Detection_ToolBar.GetToolBarCtrl().HideButton(ID_BUTTON_SUBMIT, false);
@@ -557,6 +606,11 @@ void CDetectionDlg::OnSize(UINT nType, int cx, int cy)
 	Invalidate(FALSE);
 }
 
+
+void CDetectionDlg::showInfo(int mode, CString info)
+{
+	m_mfcprogridpro_jcjg[mode]->SetValue(info);
+}
 
 void CDetectionDlg::OnNMClickTreeDetYp(NMHDR *pNMHDR, LRESULT *pResult)
 {
@@ -676,17 +730,98 @@ void CDetectionDlg::OnTvnSelchangedTreeDetYp(NMHDR *pNMHDR, LRESULT *pResult)
 	m_mfcprogridpro_jcjg[10]->SetValue(_variant_t(srst.spjg.c_str()));
 }
 
+bool nodetected = true;
+bool nospected = true;
+
 void CDetectionDlg::OnNoDetected()
 {
-
+	expandAllTreeItems();
+	if (nodetected) {
+		if (m_role == ROLE(5)) {
+			m_list_d_yp.Expand(m_list_hitems[1], TVE_COLLAPSE);
+			m_list_d_yp.Expand(m_list_hitems[2], TVE_COLLAPSE);
+			m_list_d_yp.Expand(m_list_hitems[3], TVE_COLLAPSE);
+			m_list_d_yp.Expand(m_list_hitems[4], TVE_COLLAPSE);
+		}
+		else if (m_role == ROLE(2))
+		{
+			m_list_d_yp.Expand(m_list_hitems[1], TVE_COLLAPSE);
+			m_list_d_yp.Expand(m_list_hitems[2], TVE_COLLAPSE);
+		}
+		m_Detection_ToolBar.SetButtonText(0, _T("全部"));
+		m_Detection_ToolBar.SetButtonText(1, _T("未检定"));
+		nospected = true;
+	}
+	else {
+		m_Detection_ToolBar.SetButtonText(0, _T("未检测"));
+	}
+	nodetected = !nodetected;
 }
 
 void CDetectionDlg::OnNoInSpected()
 {
+	expandAllTreeItems();
+	if (nospected) {
+		if (m_role == ROLE(5)) {
+			m_list_d_yp.Expand(m_list_hitems[2], TVE_COLLAPSE);
+			m_list_d_yp.Expand(m_list_hitems[3], TVE_COLLAPSE);
+			m_list_d_yp.Expand(m_list_hitems[4], TVE_COLLAPSE);
+		}
+		else if (m_role == ROLE(2))
+		{
+			m_list_d_yp.Expand(m_list_hitems[2], TVE_COLLAPSE);
+		}
+		m_Detection_ToolBar.SetButtonText(1, _T("全部"));
+		m_Detection_ToolBar.SetButtonText(0, _T("未检测"));
+		nodetected = true;
+	}
+	else {
+		m_Detection_ToolBar.SetButtonText(1, _T("未检定"));
+	}
+	nospected = !nospected;
 }
 
+bool noverified = true;
+bool noapproved = true;
 void CDetectionDlg::OnNoVerified()
 {
+	expandAllTreeItems();
+	if (noverified) {
+		if (m_role == ROLE(5)) {
+			m_list_d_yp.Expand(m_list_hitems[3], TVE_COLLAPSE);
+			m_list_d_yp.Expand(m_list_hitems[4], TVE_COLLAPSE);
+		}
+		else if (m_role == ROLE(3)) {
+			m_list_d_yp.Expand(m_list_hitems[3], TVE_COLLAPSE);
+		}
+		m_Detection_ToolBar.SetButtonText(2, _T("全部"));
+		m_Detection_ToolBar.SetButtonText(3, _T("未审批"));
+		noapproved = true;
+	}
+	else {
+		m_Detection_ToolBar.SetButtonText(2, _T("未核验"));
+	}
+	noverified = !noverified;
+}
+
+void CDetectionDlg::OnNoApproved()
+{
+	expandAllTreeItems();
+	if (noapproved) {
+		if (m_role == ROLE(5)) {
+			m_list_d_yp.Expand(m_list_hitems[4], TVE_COLLAPSE);
+		}
+		else if (m_role == ROLE(4)) {
+			m_list_d_yp.Expand(m_list_hitems[4], TVE_COLLAPSE);
+		}
+		m_Detection_ToolBar.SetButtonText(3, _T("全部"));
+		m_Detection_ToolBar.SetButtonText(2, _T("未核验"));
+		noverified = true;
+	}
+	else {
+		m_Detection_ToolBar.SetButtonText(3, _T("未审批"));
+	}
+	noapproved = !noapproved;
 }
 
 void CDetectionDlg::OnCAM()
@@ -695,18 +830,28 @@ void CDetectionDlg::OnCAM()
 
 void CDetectionDlg::OnDetBasis()
 {
+	ShowInfo dlg;
+	dlg.setMode(0);
+	dlg.DoModal();
 }
 
 void CDetectionDlg::OnMeasureSTD()
 {
+	ShowInfo dlg;
+	dlg.setMode(1);
+	dlg.DoModal();
 }
 
 void CDetectionDlg::OnMeasureIST()
 {
+	ShowInfo *pDlg = new ShowInfo(this);
+	pDlg->setMode(2);
+	pDlg->DoModal();
 }
 
 void CDetectionDlg::OnMeasureBasis()
 {
+	//
 }
 
 void CDetectionDlg::OnLast()

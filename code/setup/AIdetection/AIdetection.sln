@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AIdetection", "AIdetection\AIdetection.vdproj", "{9761B6CE-D25E-4649-9DBE-B56681392959}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		Release|Default = Release|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9761B6CE-D25E-4649-9DBE-B56681392959}.Debug|Default.ActiveCfg = Debug
+		{9761B6CE-D25E-4649-9DBE-B56681392959}.Debug|Default.Build.0 = Debug
+		{9761B6CE-D25E-4649-9DBE-B56681392959}.Release|Default.ActiveCfg = Release
+		{9761B6CE-D25E-4649-9DBE-B56681392959}.Release|Default.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

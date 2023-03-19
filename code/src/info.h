@@ -384,6 +384,8 @@ public:
 	string zsbh;
 	//有效期限 date->string
 	date yxqx;
+	//
+	string ref;
 };
 
 //16-计量器具 Measureist
@@ -409,6 +411,8 @@ public:
 	string zsbh;
 	//有效期限 date->string
 	date yxqx;
+	//
+	string ref;
 };
 
 
@@ -422,6 +426,7 @@ public:
 	//0-id
 	int id;
 	string jdyj;
+	string ref;
 };
 
 //18-检定结果说明 Detdes

@@ -20,6 +20,8 @@ enum ROLE
 	ROOT
 };
 
+
+
 // CAIDetectionDlg ¶Ô»°¿ò
 class CAIDetectionDlg : public CDialogEx
 {
@@ -69,6 +71,7 @@ public:
 
 	int m_curtdlgIndex;
 	void changeVisible(int newIndex);
+
 
 private:
 	afx_msg void OnLogin();

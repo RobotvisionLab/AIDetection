@@ -1145,8 +1145,10 @@ void CInputDlg::OnNewSample()
 	m_mfcprogridpro_yp[4]->SetValue(_variant_t("0.002"));
 	string zdyxwc = CPGCalculation::getMPE("1.0", "0.002");
 	m_mfcprogridpro_yp[5]->SetValue(_variant_t(zdyxwc.c_str()));
-	string tpbh = g_dlg->m_dboperator.getNewTPBH(m_currentInfo.lzdh);
-	m_mfcprogridpro_yp[7]->SetValue(_variant_t(tpbh.c_str()));
+	//string tpbh = g_dlg->m_dboperator.getNewTPBH(m_currentInfo.lzdh);
+	//m_mfcprogridpro_yp[7]->SetValue(_variant_t(tpbh.c_str()));
+	m_mfcprogridpro_yp[7]->SetValue(_variant_t("--"));
+
 	//外观-零位检查 8-9
 	m_mfcprogridpro_yp[8]->SetValue(_variant_t("不合格"));
 	m_mfcprogridpro_yp[9]->SetValue(_variant_t("不合格"));
@@ -1326,6 +1328,12 @@ void CInputDlg::OnSaveSampleInfo()
 			CStringA manfactor = m_mfcprogridpro_yp[6]->GetValue();
 			sp.sccs = string(manfactor);
 			CStringA tpbh = m_mfcprogridpro_yp[7]->GetValue();
+			if (tpbh == CStringA("--"))
+			{
+				AfxMessageBox(CString("Please input a tray id!"));
+				return;
+			}
+
 			sp.tpbh = string(tpbh);
 			sp._state = ADDED;
 			sp.dqzt = 1; 

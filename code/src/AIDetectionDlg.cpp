@@ -303,6 +303,7 @@ void CAIDetectionDlg::changeVisible(int newIndex)
 		//点击核验按钮
 		else if (newIndex == 3) {
 			m_detectionDlg.switchMode(false);
+			m_detectionDlg.expandAllTreeItems();
 		}
 		//点击设置按钮
 		else if (newIndex == 4) {
@@ -331,6 +332,7 @@ void CAIDetectionDlg::changeVisible(int newIndex)
 		//点击检测钮
 		else if (newIndex == 2) {
 			m_detectionDlg.switchMode(true);
+			m_detectionDlg.expandAllTreeItems();
 		}
 		//点击设置按钮
 		else if (newIndex == 4) {
